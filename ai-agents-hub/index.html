@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI 코딩 에이전트 허브 - 대화형 네트워크 그래프</title>
+  
+  <!-- Premium Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Vis.js Standalone (Network + Data) -->
+  <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  
+  <!-- Marked.js for Markdown parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  
+  <!-- Prism.js for Markdown Code Block Syntax Highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-bash.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+  
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- App Container -->
+  <div class="app-container">
+    
+    <!-- Top Header -->
+    <header class="main-header">
+      <div class="logo-area">
+        <i class="fa-solid fa-brain-circuit header-icon"></i>
+        <h1>AI 코딩 에이전트 허브</h1>
+      </div>
+      <p class="subtitle">10대 인공지능 코딩 에이전트의 기술적 관계도 및 핵심 사용자 매뉴얼</p>
+    </header>
+    
+    <!-- Dashboard Grid -->
+    <main class="dashboard-grid">
+      
+      <!-- Left Panel: Graph & Controls -->
+      <section class="panel-left card">
+        <div class="panel-header">
+          <h2><i class="fa-solid fa-circle-nodes"></i> 관계형 네트워크 그래프</h2>
+          
+          <!-- Graph Search & Controls -->
+          <div class="graph-search-box">
+            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+            <input type="text" id="node-search" placeholder="에이전트 또는 키워드 검색...">
+          </div>
+        </div>
+        
+        <!-- Filter Tags Bar -->
+        <div class="filter-bar">
+          <span class="filter-label">에이전트 타입 필터:</span>
+          <div class="filter-options">
+            <label class="filter-chip">
+              <input type="checkbox" value="통합개발환경" checked> <span>#통합개발환경</span>
+            </label>
+            <label class="filter-chip">
+              <input type="checkbox" value="터미널도구" checked> <span>#터미널도구</span>
+            </label>
+            <label class="filter-chip">
+              <input type="checkbox" value="자율엔지니어" checked> <span>#자율엔지니어</span>
+            </label>
+            <label class="filter-chip">
+              <input type="checkbox" value="상용서비스" checked> <span>#상용서비스</span>
+            </label>
+            <label class="filter-chip">
+              <input type="checkbox" value="오픈소스" checked> <span>#오픈소스</span>
+            </label>
+          </div>
+        </div>
+        
+        <!-- Graph Area -->
+        <div class="graph-container">
+          <div id="network-graph"></div>
+          
+          <!-- Custom Zoom & Physics Controls -->
+          <div class="graph-overlay-controls">
+            <button id="btn-fit" title="그래프 전체 화면에 맞춤"><i class="fa-solid fa-expand"></i></button>
+            <button id="btn-stabilize" title="물리 엔진 안정화/고정"><i class="fa-solid fa-lock"></i></button>
+          </div>
+          
+          <!-- Legend -->
+          <div class="graph-legend">
+            <div class="legend-item">
+              <span class="legend-dot dot-agent"></span>
+              <span>AI 에이전트 (클릭 시 설명서 로드)</span>
+            </div>
+            <div class="legend-item">
+              <span class="legend-dot dot-keyword"></span>
+              <span>핵심 키워드 (클릭 시 연결 노드 강조)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Right Panel: Manual Viewer -->
+      <section class="panel-right card">
+        <div class="panel-header">
+          <h2><i class="fa-regular fa-file-lines"></i> 사용자 매뉴얼 뷰어</h2>
+          <div id="viewer-controls" class="viewer-controls hidden">
+            <button id="btn-raw-md" class="btn-secondary" title="원본 Markdown 파일 링크 열기">
+              <i class="fa-brands fa-markdown"></i> 원본 보기
+            </button>
+          </div>
+        </div>
+        
+        <!-- Document Content Container -->
+        <div class="document-container" id="document-container">
+          
+          <!-- Empty State (Default) -->
+          <div id="empty-state" class="empty-state">
+            <div class="empty-icon-wrap">
+              <i class="fa-solid fa-network-wired pulse-icon"></i>
+            </div>
+            <h3>연결도에서 에이전트를 선택하세요</h3>
+            <p>좌측 네트워크 그래프에서 원하는 코딩 에이전트 노드(파란색)를 클릭하면, 실시간으로 파싱된 최신 사용자 매뉴얼을 열람할 수 있습니다.</p>
+            <div class="shortcut-tip">
+              <span><i class="fa-solid fa-lightbulb"></i> 팁: 키워드 노드(분홍색)를 클릭하면 해당 키워드를 공유하는 에이전트들만 강조 표시됩니다.</span>
+            </div>
+          </div>
+          
+          <!-- Loading State -->
+          <div id="loading-state" class="loading-state hidden">
+            <i class="fa-solid fa-spinner fa-spin loading-icon"></i>
+            <p>매뉴얼 문서를 불러오는 중입니다...</p>
+          </div>
+          
+          <!-- Rendered Content -->
+          <div id="rendered-content" class="rendered-markdown hidden"></div>
+        </div>
+      </section>
+      
+    </main>
+  </div>
+  
+  <!-- CORS Error Warning Overlay (hidden by default) -->
+  <div id="cors-warning" class="cors-overlay hidden">
+    <div class="cors-modal card">
+      <i class="fa-solid fa-triangle-exclamation cors-icon"></i>
+      <h2>로컬 파일 보안 경고 (CORS)</h2>
+      <p>브라우저가 보안 정책(CORS)으로 인해 로컬 Markdown 파일을 직접 <code>fetch()</code>하지 못하고 있습니다.</p>
+      <div class="solution-box">
+        <h3>해결 방법:</h3>
+        <ol>
+          <li>터미널에서 이 프로젝트 폴더로 이동합니다.</li>
+          <li>다음 명령어를 입력하여 로컬 웹 서버를 구동합니다:
+            <pre><code>npm run dev</code>  또는  <code>npx serve</code></pre>
+          </li>
+          <li>터미널에 표시된 로컬 서버 주소(예: <code>http://localhost:8080</code>)로 다시 접속합니다.</li>
+        </ol>
+      </div>
+      <p class="fallback-note">우선은 내장된 백업 데이터로 매뉴얼 기능을 실행해 둡니다. (그래프 동작 및 설명서 읽기 가능)</p>
+      <button id="btn-close-warning" class="btn-primary">확인 및 백업 모드로 실행</button>
+    </div>
+  </div>
+
+  <!-- Load Data and Main Script -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
